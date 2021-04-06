@@ -11,5 +11,6 @@ public:
 	State();
 	State(int newState);
 	int getState();
+	void setState(int newState);
 };
 

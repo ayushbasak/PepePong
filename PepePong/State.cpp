@@ -19,3 +19,8 @@ int State::getState()
 {
 	return state;
 }
+
+void State::setState(int newState)
+{
+	state = newState;
+}
