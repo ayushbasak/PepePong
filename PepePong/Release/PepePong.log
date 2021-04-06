@@ -1,0 +1,6 @@
+﻿  main.cpp
+  Generating code
+  Previous IPDB not found, fall back to full compilation.
+  All 28 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Finished generating code
+  PepePong.vcxproj -> C:\Users\Ayush Basak\source\repos\PepePong\Release\PepePong.exe
