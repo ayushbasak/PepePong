@@ -9,6 +9,10 @@
 #define WINDOW_HEIGHT 800
 int main() {
 	sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "PepePong");
+	sf::Image icon;
+	if (!icon.loadFromFile("Assets/pepe-icon.png"))
+		return EXIT_FAILURE;
+	window.setIcon(32, 32, icon.getPixelsPtr());
 	window.setFramerateLimit(30);
 	State currentState = State(0);
 
@@ -50,6 +54,7 @@ int main() {
 	Player leftPlayer = Player(sf::Vector2f(10.0, WINDOW_HEIGHT / 2 - PLAYER_HEIGHT / 5));
 	Player rightPlayer = Player(sf::Vector2f(WINDOW_WIDTH - PLAYER_WIDTH - 10.0, WINDOW_HEIGHT / 2 - PLAYER_HEIGHT / 5));
 	Ball ball = Ball(sf::Vector2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2));
+	int currectWinner = 0;
 	Score score = Score();
 
 	while (window.isOpen())
@@ -62,6 +67,10 @@ int main() {
 			if (event.type == sf::Event::Closed)
 				window.close();
 		}
+		//Quit mid Game
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
+			return EXIT_SUCCESS;
+
 
 		/*
 		State 0 Conditons Game Menu
@@ -93,14 +102,26 @@ int main() {
 		*/
 		else if (currentState.getState() == GAME) {
 			sf::Text scoreText1;
-			scoreText1.setString(std::to_string(score.getScore1()));
+			std::string score_1 = std::to_string(score.getScore1());
+			std::string score_2 = std::to_string(score.getScore2());
+
+			if (score_1 == "10") {
+				currectWinner = 0;
+				currentState.setState(2);
+			}
+			if (score_2 == "10") {
+				currectWinner = 1;
+				currentState.setState(2);
+			}
+
+			scoreText1.setString(score_1);
 			scoreText1.setFont(regularFont);
 			scoreText1.setFillColor(sf::Color::White);
 			scoreText1.setCharacterSize(30);
 			scoreText1.setPosition(sf::Vector2f(30.0, 20.0));
 
 			sf::Text scoreText2;
-			scoreText2.setString(std::to_string(score.getScore2()));
+			scoreText2.setString(score_2);
 			scoreText2.setFont(regularFont);
 			scoreText2.setFillColor(sf::Color::White);
 			scoreText2.setCharacterSize(30);
@@ -115,9 +136,6 @@ int main() {
 			window.draw(rightPlayer.shape());
 			window.draw(ball.shape());
 
-			//Quit mid Game
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
-				return EXIT_SUCCESS;
 
 			/*
 			Player 1 Controls
@@ -189,8 +207,22 @@ int main() {
 			
 			ball.move();
 		}
-		else if (currentState.getState() == EXIT_GAME)
-			std::cout << EXIT_GAME << std::endl;
+		else if (currentState.getState() == EXIT_GAME) {
+			pepeSongMuffled.stop();
+			sf::Text display;
+			display.setFont(regularFont);
+			display.setFillColor(sf::Color::Red);
+			display.setCharacterSize(60);
+			display.setOutlineColor(sf::Color::White);
+			display.setOutlineThickness(4);
+			display.setPosition(sf::Vector2f(WINDOW_WIDTH / 2.5, WINDOW_HEIGHT / 2.5));
+			window.clear();
+			if (currectWinner == 0)
+				display.setString("Player 1 Wins!");
+			else
+				display.setString("Player 2 Wins!");
+			window.draw(display);
+		}
 		window.display();
 	}
 
