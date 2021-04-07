@@ -2,12 +2,15 @@
 #pragma warning(push, 0)
 #include <SFML/Graphics.hpp>
 #pragma warning(pop)
+#define PLAYER_WIDTH 20.0f
+#define PLAYER_HEIGHT 100.0f
 class Player
 {
 private:
+	const float baseSpeed = 10.0f; //reference speed 
 	float speed = 0.0f;
-	float width = 20.f;
-	float height = 50.f;
+	float width = PLAYER_WIDTH;
+	float height = PLAYER_HEIGHT;
 	sf::Vector2f position;
 	sf::RectangleShape rect;
 
@@ -17,5 +20,6 @@ public:
 	sf::Vector2f getPosition();
 	void setColor(int r,int g, int b);
 	void move(float right, float down);
+	void move(int direction,  bool boost);
 	sf::RectangleShape shape();
 };
