@@ -1,4 +1,4 @@
-#include <iostream>
+﻿#include <iostream>
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 #include "Player.h"
@@ -30,7 +30,13 @@ int main() {
 		return EXIT_FAILURE;
 	sf::Sprite pepeSprite02(pepeTexture02);
 	sf::SoundBuffer hitBuffer;
+	if (!hitBuffer.loadFromFile("Assets/hit.wav"))
+		return EXIT_FAILURE;
 	sf::Sound hit(hitBuffer);
+	sf::Music pepeSongMuffled;
+	if (!pepeSongMuffled.openFromFile("Assets/pepesong-muffled.ogg"))
+		return EXIT_FAILURE;
+	pepeSongMuffled.setLoop(true);
 
 	/*TEMP Structure*/
 	Player leftPlayer = Player(sf::Vector2f(10.0, WINDOW_HEIGHT / 2 - PLAYER_HEIGHT / 5));
@@ -59,7 +65,7 @@ int main() {
 			menuText.setPosition(sf::Vector2f(WINDOW_WIDTH / 2 - 70, WINDOW_HEIGHT / 2 - 20));
 			menuText.setCharacterSize(50);
 			sf::Text press;
-			press.setString("Click To Start");
+			press.setString("Click To Start\n\nControls:\nW/S for Player 1\nUP_ARROW/DOWN_ARROW for Player 2");
 			press.setFont(boldFont);
 			press.setCharacterSize(20);
 			press.setFillColor(sf::Color::White);
@@ -77,6 +83,8 @@ int main() {
 		State 1: Game Scene
 		*/
 		else if (currentState.getState() == GAME) {
+			if (!(pepeSongMuffled.getStatus() == sf::Music::Status::Playing))
+				pepeSongMuffled.play();
 			window.draw(pepeSprite02);
 			window.draw(leftPlayer.shape());
 			window.draw(rightPlayer.shape());
@@ -89,14 +97,15 @@ int main() {
 			/*
 			Player 1 Controls
 			*/
-
+			sf::Vector2f leftPlayerPosition = leftPlayer.getPosition();
+			sf::Vector2f rightPlayerPosition = rightPlayer.getPosition();
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
-				if (leftPlayer.getPosition().y >= PLAYER_HEIGHT / 4) {
+				if (leftPlayerPosition.y >= PLAYER_HEIGHT / 4) {
 					leftPlayer.move(-1, false);
 				}
 			}
 			else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
-				if (leftPlayer.getPosition().y <= WINDOW_HEIGHT - PLAYER_HEIGHT - PLAYER_HEIGHT/4) {
+				if (leftPlayerPosition.y <= WINDOW_HEIGHT - PLAYER_HEIGHT - PLAYER_HEIGHT / 4) {
 					leftPlayer.move(1, false);
 				}
 			}
@@ -106,15 +115,50 @@ int main() {
 			*/
 
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
-				if (rightPlayer.getPosition().y >= PLAYER_HEIGHT / 4) {
+				if (rightPlayerPosition.y <= WINDOW_HEIGHT - PLAYER_HEIGHT - PLAYER_HEIGHT / 4) {
 					rightPlayer.move(1, false);
 				}
 			}
 			else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
-				if (rightPlayer.getPosition().y <= WINDOW_HEIGHT - PLAYER_HEIGHT - PLAYER_HEIGHT / 4) {
+				if (rightPlayerPosition.y >= PLAYER_HEIGHT / 4) {
 					rightPlayer.move(-1, false);
 				}
 			}
+
+			/*
+			BALL mechanics
+			*/
+			sf::Vector2f ballPosition = ball.getPosition();;
+			if (ballPosition.y <= 0 || ballPosition.y >= WINDOW_HEIGHT - BALL_RADIUS*2) {
+				ball.hit(0);
+				hit.play();
+			}
+			//leftPlayer hits
+			
+			if (ballPosition.x <= PLAYER_WIDTH){
+				if (ballPosition.y + BALL_RADIUS / 2 >= leftPlayerPosition.y && ballPosition.y + BALL_RADIUS <= leftPlayerPosition.y + PLAYER_HEIGHT) {
+					ball.hit(1);
+					hit.play();
+				}
+				else {
+					std::cout << "PLAYER 2 WINS" << std::endl;
+					ball.setPosition(sf::Vector2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2));
+					leftPlayer.setPosition(sf::Vector2f(sf::Vector2f(10.0, WINDOW_HEIGHT / 2 - PLAYER_HEIGHT / 5)));
+				}
+			}
+			if(ballPosition.x >= WINDOW_WIDTH - PLAYER_WIDTH - BALL_RADIUS*2){
+				if (ballPosition.y + BALL_RADIUS / 2 >= rightPlayerPosition.y && ballPosition.y + BALL_RADIUS <= rightPlayerPosition.y + PLAYER_HEIGHT) {
+					ball.hit(1);
+					hit.play();
+				}
+				else {
+					std::cout << "PLAYER 1 WINS" << std::endl;
+					ball.setPosition(sf::Vector2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2));
+					rightPlayer.setPosition(sf::Vector2f(WINDOW_WIDTH - PLAYER_WIDTH - 10.0, WINDOW_HEIGHT / 2 - PLAYER_HEIGHT / 5));
+				}
+			}
+			
+			ball.move();
 		}
 		else if (currentState.getState() == EXIT_GAME)
 			std::cout << EXIT_GAME << std::endl;

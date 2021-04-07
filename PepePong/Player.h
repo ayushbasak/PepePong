@@ -21,5 +21,6 @@ public:
 	void setColor(int r,int g, int b);
 	void move(float right, float down);
 	void move(int direction,  bool boost);
+	void setPosition(sf::Vector2f pos);
 	sf::RectangleShape shape();
 };

@@ -30,7 +30,12 @@ void Player::move(int direction, bool boost)
 		speed = baseSpeed;
 	// direction = -1 (UP) ; +1 (DOWN)
 	rect.move(sf::Vector2f(0.0, direction * speed));
-	std::cout << "MOVE" << std::endl;;
+}
+
+void Player::setPosition(sf::Vector2f pos)
+{
+	position = pos;
+	rect.setPosition(pos);
 }
 
 sf::RectangleShape Player::shape()
